@@ -1,5 +1,7 @@
 # rdap
 
+[![pub](https://img.shields.io/pub/v/rdap)](https://pub.dev/packages/rdap) [![points](https://img.shields.io/pub/points/rdap)](https://pub.dev/packages/rdap/score) [![CI](https://github.com/Seungpyo1007/rdap/actions/workflows/ci.yml/badge.svg)](https://github.com/Seungpyo1007/rdap/actions/workflows/ci.yml)
+
 Look up who registered a domain and when it expires, using
 [RDAP](https://www.icann.org/rdap), the JSON successor to WHOIS. The client
 finds the right registry server from the IANA bootstrap registry, so there is
@@ -35,13 +37,16 @@ native app or a server.
   once per client and retried if it fails.
 - Stable error codes: `unsupported_tld`, `not_found`, `timeout`, `http_error`,
   and `invalid_response`.
+- Internationalized names such as `한국.com` are converted to Punycode
+  (`xn--3e0b707e.com`), and `unicodeName` returns the Unicode form when the
+  registry publishes it.
 - `raw` keeps the full response for fields the model does not cover.
 
 ## Installation
 
 ```yaml
 dependencies:
-  rdap: ^0.0.1
+  rdap: ^0.0.2
 ```
 
 ## Usage
@@ -50,7 +55,9 @@ dependencies:
 final rdap = RdapClient(timeout: const Duration(seconds: 5));
 try {
   final domain = await rdap.domain('example.com');
-  if ((domain.daysUntilExpiry() ?? 999) < 30) {
+  if (domain.isExpired()) {
+    print('${domain.ldhName} has expired');
+  } else if ((domain.daysUntilExpiry() ?? 999) < 30) {
     print('${domain.ldhName} expires soon');
   }
 } on RdapException catch (error) {
@@ -75,8 +82,8 @@ An injected client is not closed by `close()`.
 - Only TLDs listed in the IANA bootstrap registry are supported (about 1,200).
   Many country-code TLDs, including `.kr`, `.io`, and `.jp`, are not listed
   and fail with `unsupported_tld`.
-- Names must be ASCII. Convert internationalized names to punycode
-  (`xn--...`) first.
+- Internationalized names are converted with Punycode only; UTS 46 mapping is
+  not applied, so separate labels with `.` rather than a full-width `。`.
 - Registries rate-limit RDAP. Cache results instead of polling.
 - Registries redact personal contact data, so registrant details are usually
   absent.

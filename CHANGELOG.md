@@ -1,3 +1,10 @@
+## 0.0.2
+
+* Look up internationalized domain names such as `한국.com`. Unicode labels
+  are converted to Punycode before the lookup.
+* Add `RdapDomain.unicodeName` and `RdapDomain.isExpired`.
+* Add pub.dev and CI badges to the README.
+
 ## 0.0.1
 
 * Initial release.

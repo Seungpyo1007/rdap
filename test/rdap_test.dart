@@ -26,6 +26,10 @@ final _bootstrap = <String, Object?>{
       ['co.uk'],
       ['https://couk.example/rdap'],
     ],
+    [
+      ['xn--3e0b707e'],
+      ['https://rdap.kr.example/'],
+    ],
   ],
 };
 
@@ -105,6 +109,9 @@ void main() {
     expect(domain.daysUntilExpiry(now: DateTime.utc(2028, 9, 14, 3)), 0);
     expect(domain.daysUntilExpiry(now: DateTime.utc(2028, 9, 14, 5)), -1);
     expect(domain.daysUntilExpiry(now: DateTime.utc(2028, 10, 14, 4)), -30);
+    expect(domain.isExpired(now: DateTime.utc(2028, 9, 14, 3)), isFalse);
+    expect(domain.isExpired(now: DateTime.utc(2028, 9, 14, 5)), isTrue);
+    expect(domain.unicodeName, isNull);
   });
 
   test('downloads the bootstrap registry once per client', () async {
@@ -138,7 +145,7 @@ void main() {
   );
 
   test(
-    'normalizes case and a trailing dot, and rejects non-ASCII names',
+    'normalizes case and a trailing dot, and rejects malformed names',
     () async {
       final requests = <Uri>[];
       final rdap = RdapClient(client: _server(requests));
@@ -146,10 +153,32 @@ void main() {
       await rdap.domain(' Google.COM. ');
       expect(requests.last.path, '/com/v1/domain/google.com');
 
-      expect(() => rdap.domain('한국.com'), throwsFormatException);
+      expect(() => rdap.domain('not a domain.com'), throwsFormatException);
+      expect(() => rdap.domain('한국!.com'), throwsFormatException);
       expect(() => rdap.domain('localhost'), throwsFormatException);
     },
   );
+
+  test('converts internationalized names to Punycode', () async {
+    final requests = <Uri>[];
+    final rdap = RdapClient(client: _server(requests));
+
+    // Expected values from Python's idna codec.
+    await rdap.domain('한국.com');
+    expect(requests.last.path, '/com/v1/domain/xn--3e0b707e.com');
+
+    await rdap.domain('Bücher.COM');
+    expect(requests.last.path, '/com/v1/domain/xn--bcher-kva.com');
+
+    await rdap.domain('도메인.한국');
+    expect(
+      requests.last.toString(),
+      'https://rdap.kr.example/domain/xn--hq1bm8jm9l.xn--3e0b707e',
+    );
+
+    await rdap.domain('xn--3e0b707e.com');
+    expect(requests.last.path, '/com/v1/domain/xn--3e0b707e.com');
+  });
 
   test('reports a TLD missing from the bootstrap registry', () async {
     final requests = <Uri>[];
@@ -257,5 +286,13 @@ void main() {
     expect(domain.dnssecSigned, isNull);
     expect(domain.nameservers, isEmpty);
     expect(domain.daysUntilExpiry(), isNull);
+    expect(domain.isExpired(), isFalse);
+
+    final idn = RdapDomain.fromJson({
+      'ldhName': 'XN--3E0B707E.COM',
+      'unicodeName': '한국.com',
+    });
+    expect(idn.ldhName, 'xn--3e0b707e.com');
+    expect(idn.unicodeName, '한국.com');
   });
 }

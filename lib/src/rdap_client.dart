@@ -3,6 +3,7 @@ import 'dart:convert';
 
 import 'package:http/http.dart' as http;
 
+import 'punycode.dart';
 import 'rdap_domain.dart';
 
 /// Looks up domain registration data over RDAP.
@@ -39,9 +40,10 @@ class RdapClient {
     if (_ownsClient) _client.close();
   }
 
-  /// Looks up the registration data for [domain], such as `example.com`.
+  /// Looks up the registration data for [domain], such as `example.com` or
+  /// `한국.com`. Unicode labels are converted to Punycode first.
   ///
-  /// Throws a [FormatException] when [domain] is not an ASCII domain name, and
+  /// Throws a [FormatException] when [domain] is not a valid domain name, and
   /// an [RdapException] when the lookup fails.
   Future<RdapDomain> domain(String domain) async {
     final name = _normalize(domain);
@@ -149,11 +151,19 @@ class RdapException implements Exception {
 }
 
 String _normalize(String domain) {
-  final name = domain.trim().toLowerCase().replaceFirst(RegExp(r'\.$'), '');
-  // ponytail: Unicode (IDN) names need punycode first; add an encoder when
-  // someone asks for it.
+  final labels = domain
+      .trim()
+      .toLowerCase()
+      .replaceFirst(RegExp(r'\.$'), '')
+      .split('.');
+  final name = [
+    for (final label in labels)
+      label.runes.every((codePoint) => codePoint < 0x80)
+          ? label
+          : 'xn--${punycodeEncode(label)}',
+  ].join('.');
   if (!RegExp(r'^[a-z0-9-]+(\.[a-z0-9-]+)+$').hasMatch(name)) {
-    throw FormatException('Not an ASCII domain name.', domain);
+    throw FormatException('Not a valid domain name.', domain);
   }
   return name;
 }

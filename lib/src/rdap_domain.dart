@@ -3,6 +3,7 @@ class RdapDomain {
   /// Creates registration data.
   const RdapDomain({
     required this.ldhName,
+    this.unicodeName,
     this.status = const <String>[],
     this.registered,
     this.expires,
@@ -38,9 +39,13 @@ class RdapDomain {
         .firstOrNull;
     final secureDns = json['secureDNS'];
     final signed = secureDns is Map ? secureDns['delegationSigned'] : null;
+    final unicodeName = json['unicodeName'];
 
     return RdapDomain(
       ldhName: ldhName.toLowerCase(),
+      unicodeName: unicodeName is String && unicodeName.isNotEmpty
+          ? unicodeName
+          : null,
       status: _list(json['status']).whereType<String>().toList(growable: false),
       registered: events['registration'],
       expires: events['expiration'],
@@ -62,8 +67,12 @@ class RdapDomain {
     );
   }
 
-  /// Domain name in lowercase ASCII (LDH) form.
+  /// Domain name in lowercase ASCII (LDH) form, with Punycode labels.
   final String ldhName;
+
+  /// Domain name in Unicode, such as `한국.com`, when the registry publishes
+  /// it.
+  final String? unicodeName;
 
   /// EPP status values such as `client transfer prohibited`.
   final List<String> status;
@@ -100,6 +109,11 @@ class RdapDomain {
     if (left == null) return null;
     return (left.inMicroseconds / Duration.microsecondsPerDay).floor();
   }
+
+  /// Whether [expires] has passed; `false` when the registry publishes no
+  /// expiration date.
+  bool isExpired({DateTime? now}) =>
+      expires != null && (now ?? DateTime.now()).isAfter(expires!);
 }
 
 List<Object?> _list(Object? value) => value is List ? value : const <Object?>[];
