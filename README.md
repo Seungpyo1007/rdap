@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="https://raw.githubusercontent.com/Seungpyo1007/rdap/main/assets/rdap-logo.png" alt="rdap logo: a globe with calendar rings and three connected nameserver nodes" width="128">
+</p>
+
 <h1 align="center">rdap</h1>
 
 <p align="center">
