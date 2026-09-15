@@ -1,0 +1,24 @@
+name: rdap
+description: >-
+  Look up domain registration data with RDAP, the WHOIS successor: expiry
+  date, registrar, nameservers, and status. Pure Dart, web included.
+version: 0.0.1
+homepage: https://seungpyo.online
+repository: https://github.com/Seungpyo1007/rdap
+issue_tracker: https://github.com/Seungpyo1007/rdap/issues
+topics:
+  - rdap
+  - whois
+  - domain
+  - dns
+  - networking
+
+environment:
+  sdk: ^3.11.0
+
+dependencies:
+  http: ^1.6.0
+
+dev_dependencies:
+  lints: ^6.1.0
+  test: ^1.32.0
