@@ -1,6 +1,11 @@
-# rdap
+<h1 align="center">rdap</h1>
 
-[![pub](https://img.shields.io/pub/v/rdap)](https://pub.dev/packages/rdap) [![points](https://img.shields.io/pub/points/rdap)](https://pub.dev/packages/rdap/score) [![CI](https://github.com/Seungpyo1007/rdap/actions/workflows/ci.yml/badge.svg)](https://github.com/Seungpyo1007/rdap/actions/workflows/ci.yml)
+<p align="center">
+  <a href="https://pub.dev/packages/rdap"><img src="https://img.shields.io/pub/v/rdap" alt="pub version"></a>
+  <a href="https://pub.dev/packages/rdap/score"><img src="https://img.shields.io/pub/points/rdap" alt="pub points"></a>
+  <a href="https://github.com/Seungpyo1007/rdap/actions/workflows/ci.yml"><img src="https://github.com/Seungpyo1007/rdap/actions/workflows/ci.yml/badge.svg" alt="CI"></a>
+  <a href="https://github.com/Seungpyo1007/rdap/blob/main/LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue" alt="MIT license"></a>
+</p>
 
 Look up who registered a domain and when it expires, using
 [RDAP](https://www.icann.org/rdap), the JSON successor to WHOIS. The client
