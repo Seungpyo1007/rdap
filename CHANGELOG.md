@@ -1,3 +1,7 @@
+## 0.0.3
+
+* Center the README header and add the logo and a license badge.
+
 ## 0.0.2
 
 * Look up internationalized domain names such as `한국.com`. Unicode labels

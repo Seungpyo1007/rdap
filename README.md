@@ -55,7 +55,7 @@ native app or a server.
 
 ```yaml
 dependencies:
-  rdap: ^0.0.2
+  rdap: ^0.0.3
 ```
 
 ## Usage
